@@ -2,7 +2,7 @@
 
 ## reload-on-build (ビルド完了で特定タブをリロード)
 
-このリポジトリには、`vite build --watch` の完了（`END`）をフックして、Chrome DevTools Protocol 経由で特定 URL のタブに `Page.reload` を送るスクリプト [reload-on-build.mjs](reload-on-build.mjs) を追加しています。
+このリポジトリには、`vite build --watch` の完了（`END`）をフックして、Chrome DevTools Protocol 経由で特定 URL のタブに `Page.reload` を送るスクリプト [reload-on-build.ts](reload-on-build.ts) を追加しています。
 
 ### 使い方
 
@@ -16,7 +16,7 @@
 
 2. リロードしたいタブを開く
 
-3. 対象 URL を [reload-on-build.mjs](reload-on-build.mjs) の `TARGET_URL` に合わせる（検証用のデフォルトは `http://localhost:5173/`）
+3. 対象 URL を [reload-on-build.ts](reload-on-build.ts) の `TARGET_URL` に合わせる（検証用のデフォルトは `http://localhost:5173/`）
 
 4. ビルド watch + リロード連動を起動
 
@@ -27,10 +27,10 @@ npm run build:watch:reload
 補足:
 
 - スクリプトは DevTools (`http://localhost:9222/json`) に接続できない場合、Chrome を `--remote-debugging-port=9222` 付きで自動起動します（macOS では `open -na` で別インスタンス起動）。
-- 自動起動時はデフォルトで `--user-data-dir=/tmp/chrome-remote-debug` を使います（既存Chromeに吸収されて9222が開かないのを防ぐため）。
+- 自動起動時はデフォルトで `--user-data-dir=/tmp/chrome-remote-debug` を使います（既存 Chrome に吸収されて 9222 が開かないのを防ぐため）。
 - Chrome の実行ファイルパスを変えたい場合は `CHROME_BIN` 環境変数で上書きできます（例: `CHROME_BIN=/path/to/chrome npm run build:watch:reload`）。
 - user-data-dir を変えたい場合は `CHROME_USER_DATA_DIR` で上書きできます。
-- DevTools のターゲット一覧取得は `http://localhost:9222/json` を使用します。ポートを変える場合は [reload-on-build.mjs](reload-on-build.mjs) の `DEVTOOLS_TARGETS_URL` を変更してください。
+- DevTools のターゲット一覧取得は `http://localhost:9222/json` を使用します。ポートを変える場合は [reload-on-build.ts](reload-on-build.ts) の `DEVTOOLS_TARGETS_URL` を変更してください。
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

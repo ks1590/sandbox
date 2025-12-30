@@ -1,6 +1,12 @@
 import { build } from 'vite';
-import { spawn } from 'node:child_process';
+import { spawn, type ChildProcess } from 'node:child_process';
 import WebSocket from 'ws';
+import type { RollupWatcher } from 'rollup';
+
+type DevToolsTarget = {
+  url?: string;
+  webSocketDebuggerUrl?: string;
+};
 
 const TARGET_URL = 'http://localhost:5173/'; // 対象タブのURL
 const DEVTOOLS_TARGETS_URL = 'http://localhost:9222/json';
@@ -8,11 +14,21 @@ const DEFAULT_CHROME_BIN =
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const DEFAULT_CHROME_USER_DATA_DIR = '/tmp/chrome-remote-debug';
 
-function sleep(ms) {
+function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function isDevToolsAvailable() {
+function isRollupWatcher(value: unknown): value is RollupWatcher {
+  if (typeof value !== 'object' || value === null) return false;
+  return (
+    'on' in value &&
+    typeof (value as { on?: unknown }).on === 'function' &&
+    'close' in value &&
+    typeof (value as { close?: unknown }).close === 'function'
+  );
+}
+
+async function isDevToolsAvailable(): Promise<boolean> {
   try {
     const res = await fetch(DEVTOOLS_TARGETS_URL);
     return res.ok;
@@ -21,7 +37,7 @@ async function isDevToolsAvailable() {
   }
 }
 
-function startChromeRemoteDebugging() {
+function startChromeRemoteDebugging(): ChildProcess {
   const userDataDir =
     process.env.CHROME_USER_DATA_DIR || DEFAULT_CHROME_USER_DATA_DIR;
 
@@ -53,7 +69,7 @@ function startChromeRemoteDebugging() {
   return child;
 }
 
-async function ensureChromeDevToolsRunning() {
+async function ensureChromeDevToolsRunning(): Promise<void> {
   if (await isDevToolsAvailable()) return;
 
   console.log(
@@ -76,7 +92,7 @@ async function ensureChromeDevToolsRunning() {
   );
 }
 
-async function reloadTargetTab() {
+async function reloadTargetTab(): Promise<void> {
   // 1. DevToolsのタブ一覧を取得
   const res = await fetch(DEVTOOLS_TARGETS_URL);
   if (!res.ok) {
@@ -85,7 +101,7 @@ async function reloadTargetTab() {
     );
   }
 
-  const targets = await res.json();
+  const targets = (await res.json()) as DevToolsTarget[];
   const target = targets.find(
     (t) => typeof t?.url === 'string' && t.url.startsWith(TARGET_URL)
   );
@@ -105,7 +121,7 @@ async function reloadTargetTab() {
     perMessageDeflate: false,
   });
 
-  await new Promise((resolve, reject) => {
+  await new Promise<void>((resolve, reject) => {
     const timer = setTimeout(
       () => reject(new Error('WebSocket open timeout')),
       5_000
@@ -130,7 +146,7 @@ async function reloadTargetTab() {
     })
   );
 
-  await new Promise((resolve) => {
+  await new Promise<void>((resolve) => {
     const timer = setTimeout(() => {
       ws.close();
       resolve();
@@ -138,7 +154,7 @@ async function reloadTargetTab() {
 
     ws.on('message', (msg) => {
       try {
-        const data = JSON.parse(msg.toString());
+        const data = JSON.parse(msg.toString()) as { id?: number };
         if (data?.id === commandId) {
           clearTimeout(timer);
           console.log('Reloaded:', TARGET_URL);
@@ -157,7 +173,7 @@ async function reloadTargetTab() {
   });
 }
 
-async function main() {
+async function main(): Promise<void> {
   if (typeof fetch !== 'function') {
     throw new Error(
       'Global fetch is not available. Use Node.js 18+ to run this script.'
@@ -166,11 +182,19 @@ async function main() {
 
   await ensureChromeDevToolsRunning();
 
-  const watcher = await build({
+  const buildResult = await build({
     build: {
       watch: {}, // --watch 相当
     },
   });
+
+  if (!isRollupWatcher(buildResult)) {
+    throw new Error(
+      'Vite build() did not return a watcher. Ensure build.watch is enabled and Vite is running in watch mode.'
+    );
+  }
+
+  const watcher = buildResult;
 
   watcher.on('event', async (event) => {
     if (event.code === 'END') {
