@@ -37,7 +37,7 @@ async function isDevToolsAvailable(): Promise<boolean> {
   }
 }
 
-function startChromeRemoteDebugging(): ChildProcess {
+function startChromeRemoteDebugging(initialUrl?: string): ChildProcess {
   const userDataDir =
     process.env.CHROME_USER_DATA_DIR || DEFAULT_CHROME_USER_DATA_DIR;
 
@@ -48,6 +48,10 @@ function startChromeRemoteDebugging(): ChildProcess {
     '--no-first-run',
     '--no-default-browser-check',
   ];
+
+  if (typeof initialUrl === 'string' && initialUrl.length > 0) {
+    args.push(initialUrl);
+  }
 
   // macOSは既存プロセスに吸収されて引数が反映されないことがあるため、open -na で別インスタンス起動する
   if (process.platform === 'darwin' && !process.env.CHROME_BIN) {
@@ -75,7 +79,8 @@ async function ensureChromeDevToolsRunning(): Promise<void> {
   console.log(
     'DevTools is not available. Launching Chrome with --remote-debugging-port=9222...'
   );
-  startChromeRemoteDebugging();
+  // Chrome が起動していない場合は、デフォルトで対象 URL を開く
+  startChromeRemoteDebugging(TARGET_URL);
 
   const timeoutMs = 15_000;
   const start = Date.now();
