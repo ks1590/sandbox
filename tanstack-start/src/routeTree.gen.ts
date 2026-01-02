@@ -14,6 +14,7 @@ import { Route as DemoTanchatRouteImport } from './routes/demo/tanchat'
 import { Route as DemoStructuredRouteImport } from './routes/demo/structured'
 import { Route as DemoStoreRouteImport } from './routes/demo/store'
 import { Route as DemoPrismaRouteImport } from './routes/demo/prisma'
+import { Route as DemoNewyearSquircleRouteImport } from './routes/demo/newyear-squircle'
 import { Route as DemoImageRouteImport } from './routes/demo/image'
 import { Route as DemoCss2026RouteImport } from './routes/demo/css-2026'
 import { Route as ExampleGuitarsIndexRouteImport } from './routes/example.guitars/index'
@@ -55,6 +56,11 @@ const DemoStoreRoute = DemoStoreRouteImport.update({
 const DemoPrismaRoute = DemoPrismaRouteImport.update({
   id: '/demo/prisma',
   path: '/demo/prisma',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoNewyearSquircleRoute = DemoNewyearSquircleRouteImport.update({
+  id: '/demo/newyear-squircle',
+  path: '/demo/newyear-squircle',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoImageRoute = DemoImageRouteImport.update({
@@ -148,6 +154,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/demo/css-2026': typeof DemoCss2026Route
   '/demo/image': typeof DemoImageRoute
+  '/demo/newyear-squircle': typeof DemoNewyearSquircleRoute
   '/demo/prisma': typeof DemoPrismaRoute
   '/demo/store': typeof DemoStoreRoute
   '/demo/structured': typeof DemoStructuredRoute
@@ -172,6 +179,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/demo/css-2026': typeof DemoCss2026Route
   '/demo/image': typeof DemoImageRoute
+  '/demo/newyear-squircle': typeof DemoNewyearSquircleRoute
   '/demo/prisma': typeof DemoPrismaRoute
   '/demo/store': typeof DemoStoreRoute
   '/demo/structured': typeof DemoStructuredRoute
@@ -197,6 +205,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/demo/css-2026': typeof DemoCss2026Route
   '/demo/image': typeof DemoImageRoute
+  '/demo/newyear-squircle': typeof DemoNewyearSquircleRoute
   '/demo/prisma': typeof DemoPrismaRoute
   '/demo/store': typeof DemoStoreRoute
   '/demo/structured': typeof DemoStructuredRoute
@@ -223,6 +232,7 @@ export interface FileRouteTypes {
     | '/'
     | '/demo/css-2026'
     | '/demo/image'
+    | '/demo/newyear-squircle'
     | '/demo/prisma'
     | '/demo/store'
     | '/demo/structured'
@@ -247,6 +257,7 @@ export interface FileRouteTypes {
     | '/'
     | '/demo/css-2026'
     | '/demo/image'
+    | '/demo/newyear-squircle'
     | '/demo/prisma'
     | '/demo/store'
     | '/demo/structured'
@@ -271,6 +282,7 @@ export interface FileRouteTypes {
     | '/'
     | '/demo/css-2026'
     | '/demo/image'
+    | '/demo/newyear-squircle'
     | '/demo/prisma'
     | '/demo/store'
     | '/demo/structured'
@@ -296,6 +308,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DemoCss2026Route: typeof DemoCss2026Route
   DemoImageRoute: typeof DemoImageRoute
+  DemoNewyearSquircleRoute: typeof DemoNewyearSquircleRoute
   DemoPrismaRoute: typeof DemoPrismaRoute
   DemoStoreRoute: typeof DemoStoreRoute
   DemoStructuredRoute: typeof DemoStructuredRoute
@@ -352,6 +365,13 @@ declare module '@tanstack/react-router' {
       path: '/demo/prisma'
       fullPath: '/demo/prisma'
       preLoaderRoute: typeof DemoPrismaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/newyear-squircle': {
+      id: '/demo/newyear-squircle'
+      path: '/demo/newyear-squircle'
+      fullPath: '/demo/newyear-squircle'
+      preLoaderRoute: typeof DemoNewyearSquircleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/image': {
@@ -480,6 +500,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DemoCss2026Route: DemoCss2026Route,
   DemoImageRoute: DemoImageRoute,
+  DemoNewyearSquircleRoute: DemoNewyearSquircleRoute,
   DemoPrismaRoute: DemoPrismaRoute,
   DemoStoreRoute: DemoStoreRoute,
   DemoStructuredRoute: DemoStructuredRoute,
